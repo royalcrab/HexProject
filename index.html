@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<body>
+<canvas id="field" width="800" height="600"></canvas>
+<script>
+var canvas;
+var ctx;
+var map = {
+    name: "",
+    hexes: []
+};
+
+var hexSize = 16; // 六角形の最長部分のサイズ
+var hexOffsetLeft = 20;
+var hexOffsetTop = 20;
+var hexM = hexSize * Math.sqrt(3)/2; // ルート3/2 を先に計算しておく。
+var Hex = function( xval, yval ){ // HEX を管理するクラス
+    this.x = xval;
+    this.y = yval;
+}
+// HEX の表示
+Hex.prototype.draw = function(){
+    var xc;
+    if ( this.y % 2 == 0 ){
+        xc = this.x * hexM * 2; 
+    }else{
+        xc = this.x * hexM * 2 + hexM;
+    }
+    xc += hexOffsetLeft;
+    var x1 = xc - hexM; // p2, p3
+    var x2 = xc + hexM; // p5, p6
+    var yc = this.y * hexSize * 3 / 2;
+    yc += hexOffsetTop;
+
+    console.dir( this );
+    ctx.strokeStyle = "white";
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+
+    ctx.moveTo( xc, yc - hexSize );    // p1
+    ctx.lineTo( x1, yc - hexSize / 2); // p2
+    ctx.lineTo( x1, yc + hexSize / 2); // p3
+    ctx.lineTo( xc, yc + hexSize );    // p4
+    ctx.lineTo( x2, yc + hexSize / 2); // p5
+    ctx.lineTo( x2, yc - hexSize / 2 ); // p6
+    ctx.lineTo( xc, yc - hexSize );    // p1
+    ctx.stroke();
+}
+
+// キャンバスの初期化
+function init(){
+    canvas = document.getElementById("field");
+    if ( ! canvas || ! canvas.getContext ) { return false; }
+    ctx = canvas.getContext('2d');
+}
+
+function draw(){
+    ctx.fillStyle = "gray";
+    ctx.fillRect( 0, 0, canvas.clientWidth, canvas.clientHeight );
+}
+
+
+
+function init_map()
+{
+    map = {name: "", hexes: []};
+    for ( var x = 0; x < 20; x ++ ){
+        for ( var y = 0; y < 20; y ++ ){
+            map.hexes.push( new Hex(x, y) );
+        }
+    }
+    //console.dir( map );l
+}
+
+function draw_map()
+{
+    for( var hex in map.hexes ){
+        map.hexes[hex].draw();
+    }
+}
+
+init();
+init_map();
+draw();
+draw_map();
+
+</script>
+</body>
+</html>
