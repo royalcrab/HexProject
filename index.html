@@ -2,9 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<script src="controller.js"></script>
 </head>
 <body>
-<canvas id="field" width="800" height="600"></canvas>
+<canvas id="field" width="800" height="700"></canvas>
 <script>
 var canvas;
 var ctx;
@@ -14,10 +15,17 @@ var map = {
 };
 
 var currentHex = null;
+var currentCh = null;
 
 var hexSize = 16; // 六角形の最長部分のサイズ
 var hexOffsetLeft = 20;
 var hexOffsetTop = 20;
+
+var offsetChLeft = 20;
+var offsetChTop = hexSize * 3/2 * 21;
+var chHeight = 160;
+var chWidth = 540;
+
 var hexM = hexSize * Math.sqrt(3)/2; // ルート3/2 を先に計算しておく。
 var Hex = function( xval, yval ){ // HEX を管理するクラス
     this.x = xval;
@@ -101,16 +109,8 @@ function init(){
         //console.log( tx + "," + ty );
         var str = getHex( x, y );
         currentHex = map.hexes[str];
-        //console.dir( currentHex );
-        /*
-        for ( var i in map.hexes ){
-            var hex = map.hexes[i];
-            if ( hex.includePoint( x, y ) ){
-                console.log( x + ":" + y );
-                console.dir( hex );
-                currentHex = hex;
-            }
-        }*/
+
+
     };
 }
 
@@ -119,7 +119,7 @@ function drawCanvas(){
     ctx.fillRect( 0, 0, canvas.clientWidth, canvas.clientHeight );
 }
 
-function init_map()
+function initMap()
 {
     map = {name: "", hexes: []};
     for ( var x = 0; x < 20; x ++ ){
@@ -131,28 +131,40 @@ function init_map()
     console.dir( map );
 }
 
-function drawMap()
+function drawMap(duration)
 {
     for( var hex in map.hexes ){
         map.hexes[hex].draw();
     }
+
+    // カードとキャラクタの表示エリアの下地を塗る
+    ctx.fillStyle = "lightgray";
+    ctx.strokeStyle = "black";
+    ctx.fillRect( offsetChLeft, offsetChTop, chWidth, chHeight );
+    ctx.beginPath();
+    ctx.strokeRect( offsetChLeft, offsetChTop, chWidth, chHeight );
+
+    if ( currentCh != null ){
+        chrrentCh.draw( ctx, offsetChLeft, offsetChTop );
+    }
+
 }
 
+// 全体の再描画
 requestAnimationFrame(function (t0) {
-    const ctx = canvas.getContext('2d');
     render(t0);
     function render(t1) {
         requestAnimationFrame(render);
         drawCanvas();
-        drawMap();
-        //draw(ctx, t1 - t0);
+        drawMap(t1 - t0);
     }
 });
 
 init();
-init_map();
-
-
+initMap();
+initCharacter();
 </script>
+
+
 </body>
 </html>
